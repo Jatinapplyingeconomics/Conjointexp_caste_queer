@@ -1,0 +1,17 @@
+.profile-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+.profile-card {
+  border: 1px solid #aaa;
+  padding: 10px;
+  width: 45%;
+  background-color: #f9f9f9;
+}
+.instructions-box {
+  margin: 20px;
+  padding: 15px;
+  border: 1px solid #333;
+  background-color: #eee;
+}
