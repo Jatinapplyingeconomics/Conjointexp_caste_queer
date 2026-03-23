@@ -9,6 +9,21 @@ const jsPsych = initJsPsych({
 const htmlButtonResponse = jsPsychHtmlButtonResponse;
 const instructionsPlugin = jsPsychInstructions;
 
+// Google Sheets Web App URL
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec";
+
+// Send data to Google Sheets
+function sendToGoogleSheet(data) {
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  }).catch(error => console.error("Error sending data:", error));
+}
+
 // Candidate attributes
 const qualifications = ["BA", "MA"];
 const institutions = ["Delhi University", "School of Open Learning"];
@@ -60,7 +75,7 @@ function shuffle(array) {
   return arr;
 }
 
-// Generate tasks (6 pairs)
+// Generate tasks
 function generateTasks(numTasks = 6) {
   const shuffled = shuffle(allProfiles);
   const tasks = [];
@@ -68,14 +83,18 @@ function generateTasks(numTasks = 6) {
     let left = shuffled[i * 2];
     let right = shuffled[i * 2 + 1];
     if (Math.random() < 0.5) [left, right] = [right, left];
-    tasks.push({ task_number: i + 1, profile_left: left, profile_right: right });
+    tasks.push({
+      task_number: i + 1,
+      profile_left: left,
+      profile_right: right
+    });
   }
   return tasks;
 }
 
 const conjointTasks = generateTasks(6);
 
-// Render a profile as HTML
+// Render profile
 function renderProfile(profile, label) {
   return `
     <div class="profile-card">
@@ -91,7 +110,7 @@ function renderProfile(profile, label) {
   `;
 }
 
-// Welcome screen
+// Welcome
 const welcome = {
   type: htmlButtonResponse,
   stimulus: `
@@ -99,7 +118,7 @@ const welcome = {
       <h2>Welcome</h2>
       <p>Thank you for taking part in this study.</p>
       <p>You will be shown pairs of candidate profiles.</p>
-      <p>For each pair, please choose one candidate and then rate both candidates using the buttons.</p>
+      <p>For each pair, please choose one candidate and then rate the pair using the buttons.</p>
     </div>
   `,
   choices: ["Continue"]
@@ -120,27 +139,30 @@ const instructions = {
     <div class="instructions-box">
       <h3>Your task</h3>
       <p>First, choose which candidate you would select.</p>
-      <p>Then, rate both candidates from 1 (Not suitable) to 7 (Extremely suitable) using buttons.</p>
+      <p>Then, rate the candidates from 1 (Not suitable) to 7 (Extremely suitable).</p>
     </div>
     `
   ],
   show_clickable_nav: true
 };
 
-// Start button
+// Start
 const practice = {
   type: htmlButtonResponse,
-  stimulus: `<div class="instructions-box"><h3>Start</h3><p>You are about to begin the main task.</p></div>`,
+  stimulus: `
+    <div class="instructions-box">
+      <h3>Start</h3>
+      <p>You are about to begin the main task.</p>
+    </div>
+  `,
   choices: ["Start"]
 };
 
 // Timeline
 const timeline = [welcome, instructions, practice];
 
-// Add choice and rating trials for each task
+// Add tasks
 conjointTasks.forEach(task => {
-
-  // Choice trial
   const choiceTrial = {
     type: htmlButtonResponse,
     stimulus: `
@@ -162,11 +184,14 @@ conjointTasks.forEach(task => {
     },
     on_finish: function(data) {
       data.chosen_candidate = data.response === 0 ? "A" : "B";
-      data.chosen_profile_id = data.response === 0 ? task.profile_left.profile_id : task.profile_right.profile_id;
+      data.chosen_profile_id = data.response === 0
+        ? task.profile_left.profile_id
+        : task.profile_right.profile_id;
+
+      sendToGoogleSheet(data);
     }
   };
 
-  // Rating trial (buttons for both candidates)
   const ratingTrial = {
     type: htmlButtonResponse,
     stimulus: `
@@ -179,15 +204,16 @@ conjointTasks.forEach(task => {
         <p>Choose a rating (1 = Not at all suitable, 7 = Extremely suitable)</p>
       </div>
     `,
-    choices: ["1","2","3","4","5","6","7"],
+    choices: ["1", "2", "3", "4", "5", "6", "7"],
     data: {
       trial_type_custom: "rating",
       task_number: task.task_number,
       left_profile_id: task.profile_left.profile_id,
       right_profile_id: task.profile_right.profile_id
     },
-    on_finish: function(data){
-      data.rating = data.response + 1; // store rating from 1-7
+    on_finish: function(data) {
+      data.rating = data.response + 1;
+      sendToGoogleSheet(data);
     }
   };
 
@@ -195,14 +221,19 @@ conjointTasks.forEach(task => {
   timeline.push(ratingTrial);
 });
 
-// End message
+// End
 const endMessage = {
   type: htmlButtonResponse,
-  stimulus: `<div class="instructions-box"><h2>Thank you</h2><p>You have completed the study.</p></div>`,
+  stimulus: `
+    <div class="instructions-box">
+      <h2>Thank you</h2>
+      <p>You have completed the study.</p>
+    </div>
+  `,
   choices: ["Finish"]
 };
 
 timeline.push(endMessage);
 
-// Run the experiment
+// Run
 jsPsych.run(timeline);
