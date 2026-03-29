@@ -3,7 +3,6 @@ const jsPsych = initJsPsych({
 });
 
 const htmlButtonResponse = jsPsychHtmlButtonResponse;
-const instructionsPlugin = jsPsychInstructions;
 const surveyHtmlForm = jsPsychSurveyHtmlForm;
 
 const respondent_id = "resp_" + Math.random().toString(36).substring(2, 10);
@@ -70,9 +69,11 @@ function generateTasks(n = 8) {
   const tasks = [];
 
   for (let i = 0; i < n; i++) {
-    let left = shuffled[i * 2];
-    let right = shuffled[i * 2 + 1];
-    tasks.push({ task_number: i + 1, left, right });
+    tasks.push({
+      task_number: i + 1,
+      left: shuffled[i * 2],
+      right: shuffled[i * 2 + 1]
+    });
   }
 
   return tasks;
@@ -80,84 +81,99 @@ function generateTasks(n = 8) {
 
 const tasks = generateTasks();
 
-// ================= RENDER =================
-
-function renderProfile(p, label, choiceIndex) {
-  return `
-    <div class="profile-column">
-      <div class="profile-card">
-        <h3>${label}</h3>
-        <ul>
-          <li><strong>Pronouns:</strong> ${p.pronouns}</li>
-          <li><strong>Qualification:</strong> ${p.qualification}</li>
-          <li><strong>Experience:</strong> ${p.experience}</li>
-          <li><strong>Scholarship:</strong> ${p.scholarship}</li>
-          <li><strong>Volunteer:</strong> ${p.volunteer}</li>
-        </ul>
-      </div>
-
-      <button class="choice-btn" onclick="jsPsych.finishTrial({choice: ${choiceIndex}})">
-        Choose ${label}
-      </button>
-    </div>
-  `;
-}
-
 // ================= CONSENT =================
 
 const consent1 = {
   type: htmlButtonResponse,
   stimulus: `
-  <div class="instructions-box">
-    <p>
-    View a pair profiles (think of them as CV) in each rounds/tasks with different characteristics.
-    There will be a total of 8 rounds/tasks with random profiles and characteristics.
-    At last there will be some demographic questions to help us understand the study better.
-    </p>
+    <div class="instructions-box">
+      <p>
+        You will see pairs of candidate profiles. Choose who is more likely to be hired.
+        There will be 8 rounds followed by demographic questions.
+      </p>
 
-    <h3>Confidentiality and Data Protection</h3>
-    <p>
-    Please note that this is anonymous survey.
-    The anonymised data will be used solely for academic research purposes.
-    Your participation is voluntary.
-    </p>
-  </div>
+      <h3>Confidentiality</h3>
+      <p>This survey is anonymous and for academic research only.</p>
+    </div>
   `,
   choices: ["Continue"]
 };
 
 const consent2 = {
   type: htmlButtonResponse,
-  stimulus: `<div class="instructions-box"><p>Do you agree to participate?</p></div>`,
+  stimulus: `
+    <div class="instructions-box">
+      <p>Do you agree to participate?</p>
+    </div>
+  `,
   choices: ["I do not agree", "I Agree"],
-  on_finish: d => { if (d.response === 0) jsPsych.endExperiment("You declined."); }
+  on_finish: (data) => {
+    if (data.response === 0) {
+      jsPsych.endExperiment("You declined.");
+    }
+  }
 };
 
 // ================= TIMELINE =================
 
 const timeline = [consent1, consent2];
 
-// TASKS
+// ================= TASKS =================
+
 tasks.forEach(task => {
+
   timeline.push({
     type: htmlButtonResponse,
+
     stimulus: `
       <div class="instructions-box">
         <h3>Task ${task.task_number} of 8</h3>
-        <p><strong>Which candidate do you think is more likely to be hired between the two profiles below?</strong></p>
+        <p><strong>Which candidate is more likely to be hired?</strong></p>
       </div>
 
       <div class="profile-wrapper">
-        ${renderProfile(task.left, "Candidate A", 0)}
-        ${renderProfile(task.right, "Candidate B", 1)}
+
+        <div class="profile-column">
+          <div class="profile-card">
+            <h3>Candidate A</h3>
+            <ul>
+              <li><strong>Pronouns:</strong> ${task.left.pronouns}</li>
+              <li><strong>Qualification:</strong> ${task.left.qualification}</li>
+              <li><strong>Experience:</strong> ${task.left.experience}</li>
+              <li><strong>Scholarship:</strong> ${task.left.scholarship}</li>
+              <li><strong>Volunteer:</strong> ${task.left.volunteer}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="profile-column">
+          <div class="profile-card">
+            <h3>Candidate B</h3>
+            <ul>
+              <li><strong>Pronouns:</strong> ${task.right.pronouns}</li>
+              <li><strong>Qualification:</strong> ${task.right.qualification}</li>
+              <li><strong>Experience:</strong> ${task.right.experience}</li>
+              <li><strong>Scholarship:</strong> ${task.right.scholarship}</li>
+              <li><strong>Volunteer:</strong> ${task.right.volunteer}</li>
+            </ul>
+          </div>
+        </div>
+
       </div>
     `,
-    choices: [],
-    on_finish: function(data){
-      data.respondent_id = respondent_id;
-      data.task_number = task.task_number;
+
+    choices: ["Choose A", "Choose B"],
+
+    data: {
+      respondent_id: respondent_id,
+      task_number: task.task_number
+    },
+
+    on_finish: function(data) {
+      data.choice = data.response; // 0 = A, 1 = B
     }
   });
+
 });
 
 // ================= DEMOGRAPHICS =================
@@ -185,9 +201,6 @@ timeline.push({
     Education:<br>
     <select name="education">
       <option value="">Prefer not to say</option>
-      <option>Never went to school</option>
-      <option>10th passed</option>
-      <option>12th passed</option>
       <option>Undergraduate</option>
       <option>Postgraduate</option>
       <option>PhD</option>
@@ -213,5 +226,6 @@ timeline.push({
   `
 });
 
-// Run
+// ================= RUN =================
+
 jsPsych.run(timeline);
