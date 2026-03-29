@@ -1,26 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Conjoint Experiment</title>
 
-  <!-- jsPsych CSS -->
-  <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
+  <!-- jsPsych core CSS -->
+  <link href="jspsych/jspsych.css" rel="stylesheet" />
 
-  <!-- Your custom styles -->
-  <link href="style.css" rel="stylesheet" type="text/css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+    }
+
+    .instructions-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .profile-container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+      gap: 20px;
+    }
+
+    .profile-card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: 45%;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .profile-card ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .profile-card li {
+      margin-bottom: 8px;
+    }
+  </style>
 </head>
+
 <body></body>
 
-<!-- jsPsych library -->
-<script src="https://unpkg.com/jspsych@7.3.4"></script>
+<!-- jsPsych core -->
+<script src="jspsych/jspsych.js"></script>
 
-<!-- Plugins needed -->
-<script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.3"></script>
-<script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.3"></script>
+<!-- REQUIRED plugins -->
+<script src="jspsych/plugin-html-button-response.js"></script>
+<script src="jspsych/plugin-instructions.js"></script>
+<script src="jspsych/plugin-survey-html-form.js"></script>
 
-<!-- Your experiment code -->
+<!-- Your experiment -->
 <script src="experiment.js"></script>
 
 </html>
