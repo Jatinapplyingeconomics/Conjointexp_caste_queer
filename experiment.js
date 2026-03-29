@@ -122,7 +122,7 @@ const consent1 = {
   stimulus: `
   <div class="instructions-box">
     <h3>Purpose</h3>
-    <p>This study examines hiring decisions for an administrative job.</p>
+    <p>This study examines hiring decisions for an admin office job.</p>
     <p>You will choose between candidates across 8 tasks.</p>
 
     <h3>Confidentiality</h3>
@@ -136,7 +136,11 @@ const consent2 = {
   type: htmlButtonResponse,
   stimulus: `
   <div class="instructions-box">
-    <p><strong>Do you agree to participate?</strong></p>
+    <p><strong>By selecting “I Agree” below, you confirm that:</strong></p>
+    <ul>
+      <li>You have read and understood the information above</li>
+      <li>You agree to participate in this study</li>
+    </ul>
   </div>
   `,
   choices: ["I do not agree", "I Agree"],
@@ -171,7 +175,7 @@ tasks.forEach(task => {
     stimulus: `
       <div class="instructions-box">
         <h3>Task ${task.task_number} of 8</h3>
-        <p><strong>Which candidate is more likely to be selected?</strong></p>
+        <p><strong>Which candidate according to you is more likely to be hired?</strong></p>
       </div>
       <div class="profile-container">
         ${renderProfile(task.profile_left, "Candidate A")}
