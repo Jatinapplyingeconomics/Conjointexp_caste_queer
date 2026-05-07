@@ -439,20 +439,18 @@ jsPsych.run(timeline);
 
 // SEND DATA TO GOOGLE SHEETS
 jsPsych.onFinish(() => {
-  // Get all data as JSON
-  const data = jsPsych.data.get().json();
+  // Get all individual trials as an array of objects
+  const allTrials = jsPsych.data.get().values();
 
   fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
     method: "POST",
-    body: data,
+    body: JSON.stringify(allTrials), // Send array, not one big JSON string
     headers: {
       "Content-Type": "application/json"
     }
-  }).then(response => {
-    // Optional: Show a message or confirmation
-    alert("Your responses have been submitted. Thank you!");
-  }).catch(error => {
-    // Handle errors gracefully
+  })
+  .then(response => alert("Your responses have been submitted. Thank you!"))
+  .catch(error => {
     alert("Sorry, there was a problem submitting your responses.");
     console.error(error);
   });
