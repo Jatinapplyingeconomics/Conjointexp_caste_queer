@@ -424,25 +424,28 @@ timeline.push({
 jsPsych.run(timeline);
 
 // SEND DATA TO GOOGLE SHEETS
-jsPsych.onFinish(() => {
-  const allTrials = jsPsych.data.get().values();
-  fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
-    method: "POST",
-    body: JSON.stringify(allTrials),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-  .then(response => response.json())
-  .then(response => {
-    if(response.status === "success"){
-      alert("Your responses have been submitted. Thank you!");
-    } else {
-      alert("There was a problem saving your responses: " + (response.message || ""));
-    }
-  })
-  .catch(error => {
-    alert("Sorry, there was a problem submitting your responses.");
-    console.error(error);
-  });
+const jsPsych = initJsPsych({
+  override_safe_mode: true,
+  on_finish: function() {
+    const allTrials = jsPsych.data.get().values();
+    fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
+      method: "POST",
+      body: JSON.stringify(allTrials),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(response => {
+      if(response.status === "success"){
+        alert("Your responses have been submitted. Thank you!");
+      } else {
+        alert("There was a problem saving your responses: " + (response.message || ""));
+      }
+    })
+    .catch(error => {
+      alert("Sorry, there was a problem submitting your responses.");
+      console.error(error);
+    });
+  }
 });
