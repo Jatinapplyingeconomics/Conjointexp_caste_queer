@@ -408,20 +408,17 @@ for (let t = 1; t <= NUM_TASKS; t++) {
       respondent_id: respondent_id,
       task_number: t
     },
-    on_finish: function(data) {
-      const task = jsPsych.data.get().last(1).values()[0].current_task;
-      data.choice = data.response;
-      data.chosen = data.response === 0 ? "A" : "B";
-      data.profile_A = JSON.stringify(task.left);
-      data.profile_B = JSON.stringify(task.right);
-      data.A_caste = task.left.caste_type;
-      data.B_caste = task.right.caste_type;
-      data.A_identity = task.left.identity_type;
-      data.B_identity = task.right.identity_type;
-      data.attr_order = task.attributeOrder.join(",");
+   on_finish: function() {
+  const allTrials = jsPsych.data.get().values();
+  fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
+    method: "POST",
+    mode: "no-cors",          // ← this is the key fix
+    body: JSON.stringify(allTrials),
+    headers: {
+      "Content-Type": "text/plain"   // ← must be text/plain with no-cors
     }
-  };
-  timeline.push(taskTrial);
+  })
+  .catch(error => console.error("Submission error:", error));
 }
 
 // ================= DEMOGRAPHICS =================
