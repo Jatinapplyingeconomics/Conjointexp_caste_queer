@@ -4,6 +4,13 @@ let LANG = "en"; // default; set by language selection screen
 
 const TRANSLATIONS = {
   en: {
+    lang_screen: `
+      <div class="instructions-box lang-select-box">
+        <h2>Select Language / भाषा चुनें</h2>
+      </div>
+    `,
+    lang_choices: ["English", "हिन्दी"],
+
     consent1_text: `
       <div class="instructions-box">
         <p>
@@ -95,6 +102,13 @@ const TRANSLATIONS = {
   },
 
   hi: {
+    lang_screen: `
+      <div class="instructions-box lang-select-box">
+        <h2>Select Language / भाषा चुनें</h2>
+      </div>
+    `,
+    lang_choices: ["English", "हिन्दी"],
+
     consent1_text: `
       <div class="instructions-box">
         <p>
@@ -183,7 +197,7 @@ const TRANSLATIONS = {
     `,
     demo_submit: "जमा करें",
 
-    end_text: `<p>भाग लेने के लिए धन्यवाद!</p>`,
+    end_text: `<p>भाग लेने के लिए धन्य��ाद!</p>`,
     end_btn: ["समाप्त करें"]
   }
 };
@@ -191,21 +205,31 @@ const TRANSLATIONS = {
 // Helper: get current translation
 function T() { return TRANSLATIONS[LANG]; }
 
-// ================= jsPsych INIT =================
+// ================= jsPsych INIT + GOOGLE SHEETS LOGIC =================
 
 const jsPsych = initJsPsych({
   override_safe_mode: true,
   on_finish: function() {
     const allTrials = jsPsych.data.get().values();
-    fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbxJWjq0rerGIiK69uriAyPp8A6wsapeLrdpKkGHkA2gI9A7W_CtkqYMhAbBknHT0x7R/exec", {
       method: "POST",
-      mode: "no-cors",
       body: JSON.stringify(allTrials),
       headers: {
-        "Content-Type": "text/plain"
+        "Content-Type": "application/json"
       }
     })
-    .catch(error => console.error("Submission error:", error));
+    .then(response => response.json())
+    .then(response => {
+      if(response.status === "success"){
+        alert("Your responses have been submitted. Thank you!");
+      } else {
+        alert("There was a problem saving your responses: " + (response.message || ""));
+      }
+    })
+    .catch(error => {
+      alert("Sorry, there was a problem submitting your responses.");
+      console.error(error);
+    });
   }
 });
 
@@ -321,9 +345,8 @@ function generateTask(taskNumber) {
 const languageSelect = {
   type: htmlButtonResponse,
   stimulus: `
-    <div class="instructions-box">
+    <div class="instructions-box lang-select-box">
       <h2>Select Language / भाषा चुनें</h2>
-      <p style="font-size:15px; color:#666;">Please select the language you prefer for this survey.</p>
     </div>
   `,
   choices: ["English", "हिन्दी"],
