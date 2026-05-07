@@ -360,22 +360,17 @@ const timeline = [languageSelect, consent1, consent2];
 // ================= TASK TRIALS =================
 
 for (let t = 1; t <= NUM_TASKS; t++) {
-
   const taskTrial = {
     type: htmlButtonResponse,
-
     stimulus: function() {
       const task = generateTask(t);
       jsPsych.data.addProperties({ current_task: task });
-
       const tr = T();
-
       return `
         <div class="instructions-box">
           <h3>${tr.task_heading(t, NUM_TASKS)}</h3>
           <p><strong>${tr.task_question}</strong></p>
         </div>
-
         <div class="profile-wrapper" style="display:flex; gap:20px;">
           <div style="flex:1;">
             ${renderProfileCard(task.left, tr.candidate_A, task.attributeOrder)}
@@ -386,33 +381,24 @@ for (let t = 1; t <= NUM_TASKS; t++) {
         </div>
       `;
     },
-
     choices: function() { return [T().choose_A, T().choose_B]; },
-
     data: {
       respondent_id: respondent_id,
       task_number: t
     },
-
     on_finish: function(data) {
       const task = jsPsych.data.get().last(1).values()[0].current_task;
-
       data.choice = data.response;
       data.chosen = data.response === 0 ? "A" : "B";
-
       data.profile_A = JSON.stringify(task.left);
       data.profile_B = JSON.stringify(task.right);
-
       data.A_caste = task.left.caste_type;
       data.B_caste = task.right.caste_type;
-
       data.A_identity = task.left.identity_type;
       data.B_identity = task.right.identity_type;
-
       data.attr_order = task.attributeOrder.join(",");
     }
   };
-
   timeline.push(taskTrial);
 }
 
@@ -434,22 +420,27 @@ timeline.push({
   choices: function() { return T().end_btn; }
 });
 
-jsPsych.run(timeline);
+// Only RUN the experiment ONCE!
 jsPsych.run(timeline);
 
 // SEND DATA TO GOOGLE SHEETS
 jsPsych.onFinish(() => {
-  // Get all individual trials as an array of objects
   const allTrials = jsPsych.data.get().values();
-
   fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
     method: "POST",
-    body: JSON.stringify(allTrials), // Send array, not one big JSON string
+    body: JSON.stringify(allTrials),
     headers: {
       "Content-Type": "application/json"
     }
   })
-  .then(response => alert("Your responses have been submitted. Thank you!"))
+  .then(response => response.json())
+  .then(response => {
+    if(response.status === "success"){
+      alert("Your responses have been submitted. Thank you!");
+    } else {
+      alert("There was a problem saving your responses: " + (response.message || ""));
+    }
+  })
   .catch(error => {
     alert("Sorry, there was a problem submitting your responses.");
     console.error(error);
