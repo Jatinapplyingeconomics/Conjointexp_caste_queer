@@ -4,13 +4,6 @@ let LANG = "en"; // default; set by language selection screen
 
 const TRANSLATIONS = {
   en: {
-    lang_screen: `
-      <div class="instructions-box lang-select-box">
-        <h2>Select Language / भाषा चुनें</h2>
-      </div>
-    `,
-    lang_choices: ["English", "हिन्दी"],
-
     consent1_text: `
       <div class="instructions-box">
         <p>
@@ -102,13 +95,6 @@ const TRANSLATIONS = {
   },
 
   hi: {
-    lang_screen: `
-      <div class="instructions-box lang-select-box">
-        <h2>Select Language / भाषा चुनें</h2>
-      </div>
-    `,
-    lang_choices: ["English", "हिन्दी"],
-
     consent1_text: `
       <div class="instructions-box">
         <p>
@@ -197,7 +183,7 @@ const TRANSLATIONS = {
     `,
     demo_submit: "जमा करें",
 
-    end_text: `<p>भाग लेने के लिए धन्य��ाद!</p>`,
+    end_text: `<p>भाग लेने के लिए धन्यवाद!</p>`,
     end_btn: ["समाप्त करें"]
   }
 };
@@ -205,7 +191,7 @@ const TRANSLATIONS = {
 // Helper: get current translation
 function T() { return TRANSLATIONS[LANG]; }
 
-// ================= jsPsych INIT + GOOGLE SHEETS LOGIC =================
+// ================= jsPsych INIT =================
 
 const jsPsych = initJsPsych({
   override_safe_mode: true,
@@ -213,23 +199,13 @@ const jsPsych = initJsPsych({
     const allTrials = jsPsych.data.get().values();
     fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
       method: "POST",
+      mode: "no-cors",
       body: JSON.stringify(allTrials),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "text/plain"
       }
     })
-    .then(response => response.json())
-    .then(response => {
-      if(response.status === "success"){
-        alert("Your responses have been submitted. Thank you!");
-      } else {
-        alert("There was a problem saving your responses: " + (response.message || ""));
-      }
-    })
-    .catch(error => {
-      alert("Sorry, there was a problem submitting your responses.");
-      console.error(error);
-    });
+    .catch(error => console.error("Submission error:", error));
   }
 });
 
@@ -345,8 +321,9 @@ function generateTask(taskNumber) {
 const languageSelect = {
   type: htmlButtonResponse,
   stimulus: `
-    <div class="instructions-box lang-select-box">
+    <div class="instructions-box">
       <h2>Select Language / भाषा चुनें</h2>
+      <p style="font-size:15px; color:#666;">Please select the language you prefer for this survey.</p>
     </div>
   `,
   choices: ["English", "हिन्दी"],
@@ -408,17 +385,20 @@ for (let t = 1; t <= NUM_TASKS; t++) {
       respondent_id: respondent_id,
       task_number: t
     },
-   on_finish: function() {
-  const allTrials = jsPsych.data.get().values();
-  fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
-    method: "POST",
-    mode: "no-cors",          // ← this is the key fix
-    body: JSON.stringify(allTrials),
-    headers: {
-      "Content-Type": "text/plain"   // ← must be text/plain with no-cors
+    on_finish: function(data) {
+      const task = jsPsych.data.get().last(1).values()[0].current_task;
+      data.choice = data.response;
+      data.chosen = data.response === 0 ? "A" : "B";
+      data.profile_A = JSON.stringify(task.left);
+      data.profile_B = JSON.stringify(task.right);
+      data.A_caste = task.left.caste_type;
+      data.B_caste = task.right.caste_type;
+      data.A_identity = task.left.identity_type;
+      data.B_identity = task.right.identity_type;
+      data.attr_order = task.attributeOrder.join(",");
     }
-  })
-  .catch(error => console.error("Submission error:", error));
+  };
+  timeline.push(taskTrial);
 }
 
 // ================= DEMOGRAPHICS =================
