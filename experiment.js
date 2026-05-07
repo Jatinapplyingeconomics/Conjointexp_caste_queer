@@ -1,3 +1,212 @@
+// ================= LANGUAGE / TRANSLATIONS =================
+
+let LANG = "en"; // default; set by language selection screen
+
+const TRANSLATIONS = {
+  en: {
+    lang_screen: `
+      <div class="instructions-box lang-select-box">
+        <h2>Select Language / भाषा चुनें</h2>
+      </div>
+    `,
+    lang_choices: ["English", "हिन्दी"],
+
+    consent1_text: `
+      <div class="instructions-box">
+        <p>
+          Suppose you work as an <strong>HR</strong> for a company. You have to recruit someone for an
+          <strong>Office Admin Assistant</strong> role. In this form, you will see pairs of candidate profiles
+          (CV/Resume). For each pair, choose the candidate you would like to give this job to.
+          There will be <strong>8 rounds</strong> followed by a few optional background questions.
+        </p>
+        <h3>Confidentiality</h3>
+        <p>This survey is completely anonymous and is conducted for academic research only.
+           Your responses cannot be traced back to you. So please fill the form freely, without any judgement or hesitation.</p>
+      </div>
+    `,
+    consent1_btn: ["Continue"],
+
+    consent2_text: `
+      <div class="instructions-box">
+        <p>By clicking <strong>"I Agree"</strong> you confirm that you:</p>
+        <ul style="text-align:left; max-width:500px; margin:0 auto;">
+          <li>Are 18 years of age or older</li>
+          <li>Understand that participation is voluntary</li>
+          <li>Consent to your anonymised responses being used for research</li>
+        </ul>
+      </div>
+    `,
+    consent2_btns: ["I do not agree", "I Agree"],
+    consent2_declined: "You declined to participate.",
+
+    task_heading: (t, total) => `Task ${t} of ${total}`,
+    task_question: "Which candidate is more likely to be hired?",
+    candidate_A: "Candidate A",
+    candidate_B: "Candidate B",
+    choose_A: "Choose A",
+    choose_B: "Choose B",
+
+    demographics_preamble: `
+      <div class="instructions-box">
+        <h3>Optional Background Questions</h3>
+        <p>These help us understand patterns across groups. All responses are optional.</p>
+      </div>
+    `,
+    demo_html: `
+      <label>Gender</label><br>
+      <select name="gender">
+        <option value="">Prefer not to say</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Non-binary</option>
+        <option>Gender queer</option>
+      </select>
+      <br><br>
+      <label>Sexual Orientation</label><br>
+      <select name="orientation">
+        <option value="">Prefer not to say</option>
+        <option>Heterosexual</option>
+        <option>LGBTQIA+</option>
+      </select>
+      <br><br>
+      <label>Education</label><br>
+      <select name="education">
+        <option value="">Prefer not to say</option>
+        <option>Undergraduate</option>
+        <option>Postgraduate</option>
+        <option>PhD</option>
+      </select>
+      <br><br>
+      <label>Profession</label><br>
+      <select name="profession">
+        <option value="">Prefer not to say</option>
+        <option>Student</option>
+        <option>Working</option>
+        <option>Self-employed</option>
+        <option>Unemployed</option>
+      </select>
+      <br><br>
+      <label>Caste</label><br>
+      <select name="caste">
+        <option value="">Prefer not to say</option>
+        <option>SC</option>
+        <option>ST</option>
+        <option>OBC</option>
+        <option>General</option>
+      </select>
+    `,
+    demo_submit: "Submit",
+
+    end_text: `<p>Thank you for participating!</p>`,
+    end_btn: ["Finish"]
+  },
+
+  hi: {
+    lang_screen: `
+      <div class="instructions-box lang-select-box">
+        <h2>Select Language / भाषा चुनें</h2>
+      </div>
+    `,
+    lang_choices: ["English", "हिन्दी"],
+
+    consent1_text: `
+      <div class="instructions-box">
+        <p>
+          मान लीजिए आप किसी कंपनी में <strong>HR</strong> के रूप में काम करते हैं। आपको
+          <strong>Office Admin Assistant</strong> की भूमिका के लिए किसी एक व्यक्ति की भर्ती करनी है।
+          इस form में, आपको हर round में 2 candidates के CV/Resume दिखाए जाएंगे। हर round में आपको
+          उन दो candidates में से एक को चुनना है, जिसे आप यह job देना चाहेंगे।
+          कुल <strong>8 rounds</strong> होंगे, जिसके बाद कुछ पृष्ठभूमिक सवाल पूछे जाएंगे।
+        </p>
+        <h3>गोपनीयता (Confidentiality)</h3>
+        <p>यह survey पूरी तरह गोपनीय है और केवल अकादमिक शोध के लिए किया जा रहा है।
+           आपके responses से हम यह पता नहीं लगा सकते कि कौन-सा response किस व्यक्ति ने भरा है।
+           इसलिए बिना किसी judgement या झिझक के form भरें।</p>
+      </div>
+    `,
+    consent1_btn: ["जारी रखें"],
+
+    consent2_text: `
+      <div class="instructions-box">
+        <p><strong>"मैं सहमत हूँ"</strong> पर क्लिक करके आप पुष्टि करते हैं कि आप:</p>
+        <ul style="text-align:left; max-width:500px; margin:0 auto;">
+          <li>18 वर्ष या उससे अधिक आयु के हैं</li>
+          <li>समझते हैं कि भागीदारी स्वैच्छिक है</li>
+          <li>अपनी गोपनीय प्रतिक्रियाओं को अनुसंधान में उपयोग किए जाने की सहमति देते हैं</li>
+        </ul>
+      </div>
+    `,
+    consent2_btns: ["मैं सहमत नहीं हूँ", "मैं सहमत हूँ"],
+    consent2_declined: "आपने भाग लेने से मना कर दिया।",
+
+    task_heading: (t, total) => `कार्य ${t} / ${total}`,
+    task_question: "किस उम्मीदवार को नौकरी मिलने की अधिक संभावना है?",
+    candidate_A: "Candidate A",
+    candidate_B: "Candidate B",
+    choose_A: "A को चुनें",
+    choose_B: "B को चुनें",
+
+    demographics_preamble: `
+      <div class="instructions-box">
+        <h3>वैकल्पिक पृष्ठभूमि प्रश्न</h3>
+        <p>ये हमें विभिन्न समूहों में पैटर्न समझने में मदद करते हैं। सभी उत्तर वैकल्पिक हैं।</p>
+      </div>
+    `,
+    demo_html: `
+      <label>लिंग</label><br>
+      <select name="gender">
+        <option value="">बताना नहीं चाहते</option>
+        <option value="Male">पुरुष</option>
+        <option value="Female">महिला</option>
+        <option value="Non-binary">नॉन-बाइनरी</option>
+        <option value="Gender queer">जेंडर क्वीयर</option>
+      </select>
+      <br><br>
+      <label>यौन अभिविन्यास</label><br>
+      <select name="orientation">
+        <option value="">बताना नहीं चाहते</option>
+        <option value="Heterosexual">विषमलैंगिक</option>
+        <option value="LGBTQIA+">LGBTQIA+</option>
+      </select>
+      <br><br>
+      <label>शिक्षा</label><br>
+      <select name="education">
+        <option value="">बताना नहीं चाहते</option>
+        <option value="Undergraduate">स्नातक</option>
+        <option value="Postgraduate">स्नातकोत्तर</option>
+        <option value="PhD">पीएचडी</option>
+      </select>
+      <br><br>
+      <label>पेशा</label><br>
+      <select name="profession">
+        <option value="">बताना नहीं चाहते</option>
+        <option value="Student">छात्र</option>
+        <option value="Working">कार्यरत</option>
+        <option value="Self-employed">स्व-रोज़गार</option>
+        <option value="Unemployed">बेरोज़गार</option>
+      </select>
+      <br><br>
+      <label>जाति</label><br>
+      <select name="caste">
+        <option value="">बताना नहीं चाहते</option>
+        <option>SC</option>
+        <option>ST</option>
+        <option>OBC</option>
+        <option>General</option>
+      </select>
+    `,
+    demo_submit: "जमा करें",
+
+    end_text: `<p>भाग लेने के लिए धन्यवाद!</p>`,
+    end_btn: ["समाप्त करें"]
+  }
+};
+
+// Helper: get current translation
+function T() { return TRANSLATIONS[LANG]; }
+
+// ================= jsPsych INIT =================
+
 const jsPsych = initJsPsych({
   override_safe_mode: true
 });
@@ -105,54 +314,48 @@ const NUM_TASKS = 8;
 function generateTask(taskNumber) {
   const left = labelProfile(generateProfile());
   const right = labelProfile(generateProfile());
-
   const attributeOrder = shuffleArray(ATTRIBUTE_KEYS);
-
   return { taskNumber, left, right, attributeOrder };
 }
+
+// ================= LANGUAGE SELECTION =================
+
+const languageSelect = {
+  type: htmlButtonResponse,
+  stimulus: `
+    <div class="instructions-box lang-select-box">
+      <h2>Select Language / भाषा चुनें</h2>
+    </div>
+  `,
+  choices: ["English", "हिन्दी"],
+  on_finish: function(data) {
+    LANG = data.response === 0 ? "en" : "hi";
+    jsPsych.data.addProperties({ language: LANG });
+  }
+};
 
 // ================= CONSENT =================
 
 const consent1 = {
   type: htmlButtonResponse,
-  stimulus: `
-    <div class="instructions-box">
-      <p>
-        You will see pairs of candidate profiles. For each pair, choose who you think is
-        <strong>more likely to be hired</strong> by a typical employer.
-        There will be <strong>8 rounds</strong> followed by a few optional demographic questions.
-      </p>
-      <h3>Confidentiality</h3>
-      <p>This survey is completely anonymous and is conducted for academic research only.
-         Your responses cannot be traced back to you.</p>
-    </div>
-  `,
-  choices: ["Continue"]
+  stimulus: function() { return T().consent1_text; },
+  choices: function() { return T().consent1_btn; }
 };
 
 const consent2 = {
   type: htmlButtonResponse,
-  stimulus: `
-    <div class="instructions-box">
-      <p>By clicking <strong>"I Agree"</strong> you confirm that you:</p>
-      <ul style="text-align:left; max-width:500px; margin:0 auto;">
-        <li>Are 18 years of age or older</li>
-        <li>Understand that participation is voluntary</li>
-        <li>Consent to your anonymised responses being used for research</li>
-      </ul>
-    </div>
-  `,
-  choices: ["I do not agree", "I Agree"],
-  on_finish: (data) => {
+  stimulus: function() { return T().consent2_text; },
+  choices: function() { return T().consent2_btns; },
+  on_finish: function(data) {
     if (data.response === 0) {
-      jsPsych.endExperiment("You declined to participate.");
+      jsPsych.endExperiment(T().consent2_declined);
     }
   }
 };
 
 // ================= TIMELINE =================
 
-const timeline = [consent1, consent2];
+const timeline = [languageSelect, consent1, consent2];
 
 // ================= TASK TRIALS =================
 
@@ -163,27 +366,28 @@ for (let t = 1; t <= NUM_TASKS; t++) {
 
     stimulus: function() {
       const task = generateTask(t);
-
       jsPsych.data.addProperties({ current_task: task });
+
+      const tr = T();
 
       return `
         <div class="instructions-box">
-          <h3>Task ${t} of ${NUM_TASKS}</h3>
-          <p><strong>Which candidate is more likely to be hired?</strong></p>
+          <h3>${tr.task_heading(t, NUM_TASKS)}</h3>
+          <p><strong>${tr.task_question}</strong></p>
         </div>
 
         <div class="profile-wrapper" style="display:flex; gap:20px;">
           <div style="flex:1;">
-            ${renderProfileCard(task.left, "Candidate A", task.attributeOrder)}
+            ${renderProfileCard(task.left, tr.candidate_A, task.attributeOrder)}
           </div>
           <div style="flex:1;">
-            ${renderProfileCard(task.right, "Candidate B", task.attributeOrder)}
+            ${renderProfileCard(task.right, tr.candidate_B, task.attributeOrder)}
           </div>
         </div>
       `;
     },
 
-    choices: ["Choose A", "Choose B"],
+    choices: function() { return [T().choose_A, T().choose_B]; },
 
     data: {
       respondent_id: respondent_id,
@@ -216,72 +420,9 @@ for (let t = 1; t <= NUM_TASKS; t++) {
 
 timeline.push({
   type: surveyHtmlForm,
-  preamble: `
-    <div class="instructions-box">
-      <h3>Optional Background Questions</h3>
-      <p>These help us understand patterns across groups. All responses are optional.</p>
-    </div>
-  `,
-  html: `
-    <label>Gender</label><br>
-    <select name="gender">
-      <option value="">Prefer not to say</option>
-      <option>Male</option>
-      <option>Female</option>
-      <option>Non-binary</option>
-      <option>Gender queer</option>
-    </select>
-
-    <br><br>
-
-    <label>Sexual Orientation</label><br>
-    <select name="orientation">
-      <option value="">Prefer not to say</option>
-      <option>Heterosexual</option>
-      <option>LGBTQIA+</option>
-    </select>
-
-    <br><br>
-
-    <label>Education</label><br>
-    <select name="education">
-      <option value="">Prefer not to say</option>
-      <option>Undergraduate</option>
-      <option>Postgraduate</option>
-      <option>PhD</option>
-    </select>
-
-    <br><br>
-
-    <label>Profession</label><br>
-    <select name="profession">
-      <option value="">Prefer not to say</option>
-      <option>Student</option>
-      <option>Working</option>
-      <option>Self-employed</option>
-      <option>Unemployed</option>
-    </select>
-
-    <br><br>
-
-    <label>Caste</label><br>
-    <select name="caste">
-      <option value="">Prefer not to say</option>
-      <option>SC</option>
-      <option>ST</option>
-      <option>OBC</option>
-      <option>General</option>
-    </select>
-
-    <br><br>
-
-    <label>Are you involved in hiring?</label><br>
-    <select name="hiring_experience">
-      <option value="">Prefer not to say</option>
-      <option>Yes</option>
-      <option>No</option>
-    </select>
-  `,
+  preamble: function() { return T().demographics_preamble; },
+  html: function() { return T().demo_html; },
+  button_label: function() { return T().demo_submit; },
   data: { respondent_id }
 });
 
@@ -289,8 +430,8 @@ timeline.push({
 
 timeline.push({
   type: htmlButtonResponse,
-  stimulus: `<p>Thank you for participating!</p>`,
-  choices: ["Finish"]
+  stimulus: function() { return T().end_text; },
+  choices: function() { return T().end_btn; }
 });
 
 jsPsych.run(timeline);
