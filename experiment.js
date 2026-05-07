@@ -435,3 +435,25 @@ timeline.push({
 });
 
 jsPsych.run(timeline);
+jsPsych.run(timeline);
+
+// SEND DATA TO GOOGLE SHEETS
+jsPsych.onFinish(() => {
+  // Get all data as JSON
+  const data = jsPsych.data.get().json();
+
+  fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
+    method: "POST",
+    body: data,
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(response => {
+    // Optional: Show a message or confirmation
+    alert("Your responses have been submitted. Thank you!");
+  }).catch(error => {
+    // Handle errors gracefully
+    alert("Sorry, there was a problem submitting your responses.");
+    console.error(error);
+  });
+});
