@@ -184,72 +184,65 @@ const TRANSLATIONS = {
     demo_submit: "जमा करें",
 
     end_text: `<p>भाग लेने के लिए धन्यवाद!</p>`,
-    end_btn: ["समाप्त करें"]
+    end_btn: ["Finish"]  // English Finish button always shown on end screen
   }
 };
 
 // Helper: get current translation
 function T() { return TRANSLATIONS[LANG]; }
 
+// ================= SUBMIT FUNCTION =================
+// Called immediately after demographics are submitted
+
+function submitToSheet(demo) {
+  const allTrials = jsPsych.data.get().values();
+
+  const taskRows = allTrials
+    .filter(t => t.task_number !== undefined && t.trial_type === "html-button-response")
+    .map(t => ({
+      respondent_id:    t.respondent_id    || "",
+      language:         LANG,
+      task_number:      t.task_number      || "",
+      chosen:           t.chosen           || "",
+      A_qualification:  t.A_qualification  || "",
+      A_experience:     t.A_experience     || "",
+      A_scholarship:    t.A_scholarship    || "",
+      A_pronouns:       t.A_pronouns       || "",
+      A_volunteer:      t.A_volunteer      || "",
+      A_caste:          t.A_caste          || "",
+      A_identity:       t.A_identity       || "",
+      B_qualification:  t.B_qualification  || "",
+      B_experience:     t.B_experience     || "",
+      B_scholarship:    t.B_scholarship    || "",
+      B_pronouns:       t.B_pronouns       || "",
+      B_volunteer:      t.B_volunteer      || "",
+      B_caste:          t.B_caste          || "",
+      B_identity:       t.B_identity       || "",
+      attr_order:       t.attr_order       || "",
+      resp_gender:      demo.gender        || "",
+      resp_orientation: demo.orientation   || "",
+      resp_education:   demo.education     || "",
+      resp_profession:  demo.profession    || "",
+      resp_caste:       demo.caste         || ""
+    }));
+
+  fetch("https://script.google.com/macros/s/AKfycbxJWjq0rerGIiK69uriAyPp8A6wsapeLrdpKkGHkA2gI9A7W_CtkqYMhAbBknHT0x7R/exec", {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify(taskRows),
+    headers: { "Content-Type": "text/plain" }
+  })
+  .catch(error => console.error("Submission error:", error));
+}
+
 // ================= jsPsych INIT =================
 
 const jsPsych = initJsPsych({
-  override_safe_mode: true,
-  on_finish: function() {
-    const allTrials = jsPsych.data.get().values();
-
-    // ---- Extract demographics from the survey-html-form trial ----
-    const demoTrial = allTrials.find(t => t.trial_type === "survey-html-form");
-    const demo = demoTrial && demoTrial.response ? demoTrial.response : {};
-
-    // ---- Extract only task trials and stamp demographics + language onto each ----
-    const taskRows = allTrials
-      .filter(t => t.task_number !== undefined && t.trial_type === "html-button-response")
-      .map(t => ({
-        respondent_id:    t.respondent_id || "",
-        language:         LANG,
-        task_number:      t.task_number || "",
-        chosen:           t.chosen || "",
-        // Candidate A attributes
-        A_qualification:  t.A_qualification || "",
-        A_experience:     t.A_experience || "",
-        A_scholarship:    t.A_scholarship || "",
-        A_pronouns:       t.A_pronouns || "",
-        A_volunteer:      t.A_volunteer || "",
-        A_caste:          t.A_caste || "",
-        A_identity:       t.A_identity || "",
-        // Candidate B attributes
-        B_qualification:  t.B_qualification || "",
-        B_experience:     t.B_experience || "",
-        B_scholarship:    t.B_scholarship || "",
-        B_pronouns:       t.B_pronouns || "",
-        B_volunteer:      t.B_volunteer || "",
-        B_caste:          t.B_caste || "",
-        B_identity:       t.B_identity || "",
-        // Attribute display order
-        attr_order:       t.attr_order || "",
-        // Respondent demographics stamped on every row
-        resp_gender:      demo.gender || "",
-        resp_orientation: demo.orientation || "",
-        resp_education:   demo.education || "",
-        resp_profession:  demo.profession || "",
-        resp_caste:       demo.caste || ""
-      }));
-
-    fetch("https://script.google.com/macros/s/AKfycbwZAJLkkQvBuJ3WKV5Xlw_zacwr6llDcaNY_ZmwM2Fa_c3MAeQ2RTEC8v5Z3WDtLpn3/exec", {
-      method: "POST",
-      mode: "no-cors",
-      body: JSON.stringify(taskRows),
-      headers: {
-        "Content-Type": "text/plain"
-      }
-    })
-    .catch(error => console.error("Submission error:", error));
-  }
+  override_safe_mode: true
 });
 
 const htmlButtonResponse = jsPsychHtmlButtonResponse;
-const surveyHtmlForm = jsPsychSurveyHtmlForm;
+const surveyHtmlForm     = jsPsychSurveyHtmlForm;
 
 const respondent_id = "resp_" + Math.random().toString(36).substring(2, 10);
 
@@ -274,15 +267,15 @@ function drawIdentityBundle() {
   const isQueer = Math.random() < 0.5;
   if (isQueer) {
     return {
-      pronouns: "They/Them",
-      volunteer: "Member at Queer/ LGBTQIA+ collective",
+      pronouns:      "They/Them",
+      volunteer:     "Member at Queer/ LGBTQIA+ collective",
       identity_type: "queer"
     };
   } else {
     const pronoun = Math.random() < 0.5 ? "He/Him" : "She/Her";
     return {
-      pronouns: pronoun,
-      volunteer: "Member at Equal Opportunity Cell",
+      pronouns:      pronoun,
+      volunteer:     "Member at Equal Opportunity Cell",
       identity_type: "straight"
     };
   }
@@ -312,8 +305,7 @@ function labelProfile(profile) {
 
 // ================= ATTRIBUTE ORDER =================
 
-const ATTRIBUTE_KEYS = ["pronouns", "qualification", "experience", "scholarship", "volunteer"];
-
+const ATTRIBUTE_KEYS   = ["pronouns", "qualification", "experience", "scholarship", "volunteer"];
 const ATTRIBUTE_LABELS = {
   pronouns:      "Pronouns",
   qualification: "Qualification",
@@ -335,7 +327,6 @@ function renderProfileCard(profile, label, attributeOrder) {
   const rows = attributeOrder.map(key => `
     <li><strong>${ATTRIBUTE_LABELS[key]}:</strong> ${profile[key]}</li>
   `).join("");
-
   return `
     <div class="profile-card">
       <h3>${label}</h3>
@@ -377,13 +368,13 @@ const languageSelect = {
 const consent1 = {
   type: htmlButtonResponse,
   stimulus: function() { return T().consent1_text; },
-  choices: function() { return T().consent1_btn; }
+  choices:  function() { return T().consent1_btn; }
 };
 
 const consent2 = {
   type: htmlButtonResponse,
   stimulus: function() { return T().consent2_text; },
-  choices: function() { return T().consent2_btns; },
+  choices:  function() { return T().consent2_btns; },
   on_finish: function(data) {
     if (data.response === 0) {
       jsPsych.endExperiment(T().consent2_declined);
@@ -429,7 +420,6 @@ for (let t = 1; t <= NUM_TASKS; t++) {
 
       data.chosen = data.response === 0 ? "A" : "B";
 
-      // Store each attribute flat — no JSON blobs
       data.A_qualification = task.left.qualification;
       data.A_experience    = task.left.experience;
       data.A_scholarship   = task.left.scholarship;
@@ -453,21 +443,28 @@ for (let t = 1; t <= NUM_TASKS; t++) {
 }
 
 // ================= DEMOGRAPHICS =================
+// ⬇ Data is submitted here — as soon as Submit is clicked, before the end screen
 
 timeline.push({
-  type: surveyHtmlForm,
+  type:         surveyHtmlForm,
   preamble:     function() { return T().demographics_preamble; },
   html:         function() { return T().demo_html; },
   button_label: function() { return T().demo_submit; },
-  data: { respondent_id }
+  data: { respondent_id },
+  on_finish: function(data) {
+    // Grab the demographic answers and submit everything immediately
+    const demo = data.response || {};
+    submitToSheet(demo);
+  }
 });
 
-// ================= END =================
+// ================= END SCREEN =================
+// Just a thank you screen — data already safely sent above
 
 timeline.push({
-  type: htmlButtonResponse,
+  type:     htmlButtonResponse,
   stimulus: function() { return T().end_text; },
-  choices:  function() { return T().end_btn; }
+  choices:  ["Finish"]
 });
 
 jsPsych.run(timeline);
