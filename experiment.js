@@ -236,7 +236,7 @@ const jsPsych = initJsPsych({
         resp_caste:       demo.caste || ""
       }));
 
-    fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbxJWjq0rerGIiK69uriAyPp8A6wsapeLrdpKkGHkA2gI9A7W_CtkqYMhAbBknHT0x7R/exec", {
       method: "POST",
       mode: "no-cors",
       body: JSON.stringify(taskRows),
