@@ -197,10 +197,49 @@ const jsPsych = initJsPsych({
   override_safe_mode: true,
   on_finish: function() {
     const allTrials = jsPsych.data.get().values();
-    fetch("https://script.google.com/macros/s/AKfycbxJWjq0rerGIiK69uriAyPp8A6wsapeLrdpKkGHkA2gI9A7W_CtkqYMhAbBknHT0x7R/exec", {
+
+    // ---- Extract demographics from the survey-html-form trial ----
+    const demoTrial = allTrials.find(t => t.trial_type === "survey-html-form");
+    const demo = demoTrial && demoTrial.response ? demoTrial.response : {};
+
+    // ---- Extract only task trials and stamp demographics + language onto each ----
+    const taskRows = allTrials
+      .filter(t => t.task_number !== undefined && t.trial_type === "html-button-response")
+      .map(t => ({
+        respondent_id:    t.respondent_id || "",
+        language:         LANG,
+        task_number:      t.task_number || "",
+        chosen:           t.chosen || "",
+        // Candidate A attributes
+        A_qualification:  t.A_qualification || "",
+        A_experience:     t.A_experience || "",
+        A_scholarship:    t.A_scholarship || "",
+        A_pronouns:       t.A_pronouns || "",
+        A_volunteer:      t.A_volunteer || "",
+        A_caste:          t.A_caste || "",
+        A_identity:       t.A_identity || "",
+        // Candidate B attributes
+        B_qualification:  t.B_qualification || "",
+        B_experience:     t.B_experience || "",
+        B_scholarship:    t.B_scholarship || "",
+        B_pronouns:       t.B_pronouns || "",
+        B_volunteer:      t.B_volunteer || "",
+        B_caste:          t.B_caste || "",
+        B_identity:       t.B_identity || "",
+        // Attribute display order
+        attr_order:       t.attr_order || "",
+        // Respondent demographics stamped on every row
+        resp_gender:      demo.gender || "",
+        resp_orientation: demo.orientation || "",
+        resp_education:   demo.education || "",
+        resp_profession:  demo.profession || "",
+        resp_caste:       demo.caste || ""
+      }));
+
+    fetch("https://script.google.com/macros/s/AKfycbzyiQluiJnjimSa6sFg5WSXAsOy4EUYdC82DajoPUqWYt2pT2mt0QnrEeKiPv31UCcW/exec", {
       method: "POST",
       mode: "no-cors",
-      body: JSON.stringify(allTrials),
+      body: JSON.stringify(taskRows),
       headers: {
         "Content-Type": "text/plain"
       }
@@ -257,12 +296,12 @@ function generateProfile() {
   const identity = drawIdentityBundle();
   return {
     qualification: pickRandom(ATTRIBUTES.qualification),
-    experience: pickRandom(ATTRIBUTES.experience),
-    scholarship: pickRandom(ATTRIBUTES.scholarship),
-    pronouns: identity.pronouns,
-    volunteer: identity.volunteer,
+    experience:    pickRandom(ATTRIBUTES.experience),
+    scholarship:   pickRandom(ATTRIBUTES.scholarship),
+    pronouns:      identity.pronouns,
+    volunteer:     identity.volunteer,
     identity_type: identity.identity_type,
-    caste_type: ""
+    caste_type:    ""
   };
 }
 
@@ -276,11 +315,11 @@ function labelProfile(profile) {
 const ATTRIBUTE_KEYS = ["pronouns", "qualification", "experience", "scholarship", "volunteer"];
 
 const ATTRIBUTE_LABELS = {
-  pronouns: "Pronouns",
+  pronouns:      "Pronouns",
   qualification: "Qualification",
-  experience: "Experience",
-  scholarship: "Scholarship",
-  volunteer: "Volunteer"
+  experience:    "Experience",
+  scholarship:   "Scholarship",
+  volunteer:     "Volunteer"
 };
 
 function shuffleArray(arr) {
@@ -310,7 +349,7 @@ function renderProfileCard(profile, label, attributeOrder) {
 const NUM_TASKS = 8;
 
 function generateTask(taskNumber) {
-  const left = labelProfile(generateProfile());
+  const left  = labelProfile(generateProfile());
   const right = labelProfile(generateProfile());
   const attributeOrder = shuffleArray(ATTRIBUTE_KEYS);
   return { taskNumber, left, right, attributeOrder };
@@ -383,18 +422,30 @@ for (let t = 1; t <= NUM_TASKS; t++) {
     choices: function() { return [T().choose_A, T().choose_B]; },
     data: {
       respondent_id: respondent_id,
-      task_number: t
+      task_number:   t
     },
     on_finish: function(data) {
       const task = jsPsych.data.get().last(1).values()[0].current_task;
-      data.choice = data.response;
+
       data.chosen = data.response === 0 ? "A" : "B";
-      data.profile_A = JSON.stringify(task.left);
-      data.profile_B = JSON.stringify(task.right);
-      data.A_caste = task.left.caste_type;
-      data.B_caste = task.right.caste_type;
-      data.A_identity = task.left.identity_type;
-      data.B_identity = task.right.identity_type;
+
+      // Store each attribute flat — no JSON blobs
+      data.A_qualification = task.left.qualification;
+      data.A_experience    = task.left.experience;
+      data.A_scholarship   = task.left.scholarship;
+      data.A_pronouns      = task.left.pronouns;
+      data.A_volunteer     = task.left.volunteer;
+      data.A_caste         = task.left.caste_type;
+      data.A_identity      = task.left.identity_type;
+
+      data.B_qualification = task.right.qualification;
+      data.B_experience    = task.right.experience;
+      data.B_scholarship   = task.right.scholarship;
+      data.B_pronouns      = task.right.pronouns;
+      data.B_volunteer     = task.right.volunteer;
+      data.B_caste         = task.right.caste_type;
+      data.B_identity      = task.right.identity_type;
+
       data.attr_order = task.attributeOrder.join(",");
     }
   };
@@ -405,8 +456,8 @@ for (let t = 1; t <= NUM_TASKS; t++) {
 
 timeline.push({
   type: surveyHtmlForm,
-  preamble: function() { return T().demographics_preamble; },
-  html: function() { return T().demo_html; },
+  preamble:     function() { return T().demographics_preamble; },
+  html:         function() { return T().demo_html; },
   button_label: function() { return T().demo_submit; },
   data: { respondent_id }
 });
@@ -416,7 +467,7 @@ timeline.push({
 timeline.push({
   type: htmlButtonResponse,
   stimulus: function() { return T().end_text; },
-  choices: function() { return T().end_btn; }
+  choices:  function() { return T().end_btn; }
 });
 
 jsPsych.run(timeline);
